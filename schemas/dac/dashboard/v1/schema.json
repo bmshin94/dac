@@ -414,7 +414,14 @@
             "required": ["type"],
             "properties": { "type": { "const": "pivot_table" } }
           },
-          "then": { "required": ["pivot"] },
+          "then": {
+            "required": ["pivot"],
+            "properties": {
+              "columns": {
+                "items": { "properties": { "type": { "const": "text" } } }
+              }
+            }
+          },
           "else": { "not": { "required": ["pivot"] } }
         }
       ]

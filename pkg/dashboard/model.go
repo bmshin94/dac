@@ -268,6 +268,7 @@ func (c *TableColumn) UnmarshalYAML(node *yaml.Node) error {
 	var tmp struct {
 		Name   string    `yaml:"name"`
 		Label  string    `yaml:"label,omitempty"`
+		Type   string    `yaml:"type,omitempty"`
 		Number string    `yaml:"number,omitempty"`
 		Like   string    `yaml:"like,omitempty"`
 		Hidden bool      `yaml:"hidden,omitempty"`
@@ -279,7 +280,7 @@ func (c *TableColumn) UnmarshalYAML(node *yaml.Node) error {
 	if err := node.Decode(&tmp); err != nil {
 		return err
 	}
-	*c = TableColumn{Name: tmp.Name, Label: tmp.Label, Number: tmp.Number, Like: tmp.Like, Hidden: tmp.Hidden, Align: tmp.Align, Border: tmp.Border, Frozen: tmp.Frozen}
+	*c = TableColumn{Name: tmp.Name, Label: tmp.Label, Type: tmp.Type, Number: tmp.Number, Like: tmp.Like, Hidden: tmp.Hidden, Align: tmp.Align, Border: tmp.Border, Frozen: tmp.Frozen}
 
 	// Follow a YAML alias to its target, then: a scalar is the legacy value-display
 	// shorthand (folds into `number`); a list is the style layers.

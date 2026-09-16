@@ -998,6 +998,7 @@ func asTableColumns(v interface{}) []TableColumn {
 			col := TableColumn{
 				Name:   asString(m["name"]),
 				Label:  asString(m["label"]),
+				Type:   asString(m["type"]),
 				Number: asString(m["number"]),
 				Align:  asString(m["align"]),
 				Border: asString(m["border"]),

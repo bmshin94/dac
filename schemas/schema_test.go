@@ -87,6 +87,20 @@ rows:
 `,
 		},
 		{
+			name:     "dashboard image column",
+			schemaID: DashboardV1ID,
+			yaml: `name: Listings
+rows:
+  - widgets:
+      - name: Active
+        type: table
+        sql: SELECT photo, price FROM listings
+        columns:
+          - { name: photo, type: image }
+          - { name: price, number: currency }
+`,
+		},
+		{
 			name:     "theme",
 			schemaID: ThemeV1ID,
 			yaml: `schema: https://getbruin.com/schemas/dac/theme/v1
@@ -192,6 +206,24 @@ rows:
       - name: Sales
         type: pivot_table
         sql: SELECT region, sales FROM orders
+`,
+		},
+		{
+			name:     "image column on pivot_table widget",
+			schemaID: DashboardV1ID,
+			yaml: `name: Pivot Image
+rows:
+  - widgets:
+      - name: Sales
+        type: pivot_table
+        sql: SELECT region, photo FROM listings
+        pivot:
+          rows:
+            - { field: region }
+          values:
+            - { field: photo }
+        columns:
+          - { name: photo, type: image }
 `,
 		},
 		{
