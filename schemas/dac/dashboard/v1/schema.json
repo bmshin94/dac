@@ -491,6 +491,10 @@
         "label": {
           "type": "string"
         },
+        "type": {
+          "enum": ["text", "image"],
+          "description": "How to render the column's cell values. `text` (default) shows the value; `image` treats each value as an image URL and renders it as a thumbnail (plain tables only)."
+        },
         "number": {
           "type": "string"
         },

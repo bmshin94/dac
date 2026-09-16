@@ -223,6 +223,7 @@ type RefBand struct {
 type TableColumn struct {
 	Name   string        `yaml:"name" json:"name"`
 	Label  string        `yaml:"label,omitempty" json:"label,omitempty"`
+	Type   string        `yaml:"type,omitempty" json:"type,omitempty"`     // cell rendering: text (default) | image (value is an image URL, rendered as a thumbnail)
 	Number string        `yaml:"number,omitempty" json:"number,omitempty"` // value display: currency | number | d3-format spec
 	Like   string        `yaml:"like,omitempty" json:"like,omitempty"`     // mirror another column's coloring + per-row value
 	Hidden bool          `yaml:"hidden,omitempty" json:"hidden,omitempty"` // keep the column in the result (for cross-column rules / like) but don't render it

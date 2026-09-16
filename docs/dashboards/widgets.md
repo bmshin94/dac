@@ -368,6 +368,7 @@ Table column fields:
 |-------|------|-------------|
 | `name` | string | Result column name (must match the SQL output) |
 | `label` | string | Display header (defaults to `name`) |
+| `type` | string | Cell rendering: `text` (default) or `image`. `image` treats each cell value as an image URL and renders it as a thumbnail (plain tables only; not `pivot_table`). |
 | `align` | string | Text alignment override: `left`, `center`, or `right`. Applies to the column header and its body cells. Use it to right-align a text value like `£177K` that isn't detected as numeric. |
 | `border` | string | Non-colour vertical border on this column's `left`, `right`, or `both` edge, to separate column groups (plain tables only; not `pivot_table`). |
 | `hidden` | boolean | Keep the column in the result but don't render it, see [Hidden columns](#hidden-columns) |

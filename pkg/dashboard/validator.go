@@ -781,6 +781,13 @@ func validateTableColumns(prefix string, w *Widget, errs *[]string) {
 		if c.Frozen && w.Type == WidgetTypePivotTable {
 			*errs = append(*errs, cp+".frozen: not supported on pivot tables")
 		}
+		if c.Type != "" {
+			if c.Type != "text" && c.Type != "image" {
+				*errs = append(*errs, fmt.Sprintf("%s.type: must be text or image", cp))
+			} else if c.Type == "image" && w.Type == WidgetTypePivotTable {
+				*errs = append(*errs, cp+".type: image not supported on pivot tables")
+			}
+		}
 		for i, layer := range c.Format {
 			validateFormatLayer(fmt.Sprintf("%s.format[%d]", cp, i), layer, false, errs)
 		}

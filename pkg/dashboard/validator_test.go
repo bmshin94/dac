@@ -511,6 +511,38 @@ func TestValidate_TableColumnFrozen(t *testing.T) {
 	assertValidationContains(t, Validate(pivot), "frozen: not supported on pivot tables")
 }
 
+func TestValidate_TableColumnType(t *testing.T) {
+	// type: image is accepted on plain tables.
+	tbl := &Dashboard{Name: "test", Rows: []Row{{Widgets: []Widget{{
+		Name: "w", Type: WidgetTypeTable, SQL: "SELECT photo FROM listings",
+		Columns: []TableColumn{{Name: "photo", Type: "image"}},
+	}}}}}
+	assertNoErr(t, Validate(tbl))
+
+	// an unknown type is rejected.
+	bad := &Dashboard{Name: "test", Rows: []Row{{Widgets: []Widget{{
+		Name: "w", Type: WidgetTypeTable, SQL: "SELECT photo FROM listings",
+		Columns: []TableColumn{{Name: "photo", Type: "video"}},
+	}}}}}
+	assertValidationContains(t, Validate(bad), "type: must be text or image")
+
+	// type: image is table-only — rejected on pivot_table widgets.
+	pivot := &Dashboard{Name: "test", Rows: []Row{{Widgets: []Widget{{
+		Name: "w", Type: WidgetTypePivotTable, SQL: "SELECT region, photo FROM listings",
+		Pivot:   &PivotConfig{Rows: []PivotField{{Field: "region"}}, Values: []PivotValue{{Field: "photo"}}},
+		Columns: []TableColumn{{Name: "photo", Type: "image"}},
+	}}}}}
+	assertValidationContains(t, Validate(pivot), "type: image not supported on pivot tables")
+
+	// type: text is the default rendering and stays valid on pivot tables.
+	pivotText := &Dashboard{Name: "test", Rows: []Row{{Widgets: []Widget{{
+		Name: "w", Type: WidgetTypePivotTable, SQL: "SELECT region, sales FROM orders",
+		Pivot:   &PivotConfig{Rows: []PivotField{{Field: "region"}}, Values: []PivotValue{{Field: "sales"}}},
+		Columns: []TableColumn{{Name: "sales", Type: "text"}},
+	}}}}}
+	assertNoErr(t, Validate(pivotText))
+}
+
 func TestValidate_PivotOnlyOnTables(t *testing.T) {
 	d := &Dashboard{
 		Name: "test",
