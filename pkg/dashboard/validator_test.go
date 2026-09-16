@@ -512,21 +512,29 @@ func TestValidate_TableColumnFrozen(t *testing.T) {
 }
 
 func TestValidate_ImageWidget(t *testing.T) {
-	// A valid image widget with an optional fit.
+	// Data-driven: a query source plus src naming the image URL column.
 	ok := &Dashboard{Name: "test", Rows: []Row{{Widgets: []Widget{{
-		Name: "w", Type: WidgetTypeImage, Src: "https://example.com/a.jpg", Fit: "cover",
+		Name: "w", Type: WidgetTypeImage, SQL: "SELECT photo, address FROM listings", Src: "photo", Title: "address", Fit: "cover",
 	}}}}}
 	assertNoErr(t, Validate(ok))
 
-	// src is required.
+	// src (the image URL column) is required.
 	noSrc := &Dashboard{Name: "test", Rows: []Row{{Widgets: []Widget{{
-		Name: "w", Type: WidgetTypeImage,
+		Name: "w", Type: WidgetTypeImage, SQL: "SELECT photo FROM listings",
 	}}}}}
-	assertValidationContains(t, Validate(noSrc), "src is required for image widgets")
+	assertValidationContains(t, Validate(noSrc), "src (image URL column) is required for image widgets")
+
+	// No query source → error (data-driven, like a table).
+	noSource := &Dashboard{Name: "test", Rows: []Row{{Widgets: []Widget{{
+		Name: "w", Type: WidgetTypeImage, Src: "photo",
+	}}}}}
+	if Validate(noSource) == nil {
+		t.Fatal("expected an error for an image widget without a query source")
+	}
 
 	// fit must be contain or cover.
 	badFit := &Dashboard{Name: "test", Rows: []Row{{Widgets: []Widget{{
-		Name: "w", Type: WidgetTypeImage, Src: "https://example.com/a.jpg", Fit: "stretch",
+		Name: "w", Type: WidgetTypeImage, SQL: "SELECT photo FROM listings", Src: "photo", Fit: "stretch",
 	}}}}}
 	assertValidationContains(t, Validate(badFit), "fit must be contain or cover")
 }
@@ -875,7 +883,7 @@ func TestValidate_InlineDataInvalidOnText(t *testing.T) {
 	}
 	err := Validate(d)
 	assertErr(t, err)
-	assertValidationContains(t, err, "data is only valid on metric, chart, table, or pivot_table widgets")
+	assertValidationContains(t, err, "data is only valid on metric, chart, table, pivot_table, or image widgets")
 }
 
 func TestValidate_InlineDataEmptyColumns(t *testing.T) {

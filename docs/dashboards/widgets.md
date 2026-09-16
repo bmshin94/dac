@@ -667,29 +667,32 @@ Supported markdown:
 
 ## Image
 
-Image widgets render an image from a URL, with an optional title and Markdown caption.
+Image widgets are data-driven like a table: the widget runs a query and renders one
+image per result row (scrolling horizontally when there are several). `src`/`title`/
+`caption`/`alt` name the columns to read; `fit` is a literal applied to every image.
 
 ```yaml
-- name: Featured Property
+- name: Property Gallery
   type: image
-  col: 4
-  src: https://example.com/listings/123.jpg
-  alt: Riverside Loft exterior
-  title: Riverside Loft
-  caption: |
-    **€845,000** · 3 bed · 128 m²
+  col: 12
   fit: cover
+  sql: SELECT photo_url, address, price FROM listings   # or an inline data: block
+  src: photo_url     # column with the image URL (required)
+  title: address     # column for the heading
+  caption: price     # column for the markdown caption
 ```
 
 Image-specific fields:
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `src` | string | Yes | Image URL. Must be reachable by the viewer's browser (http(s) URL, `data:` URI, or an app-served path); local file paths do not work. |
-| `alt` | string | No | Alt text for accessibility |
-| `title` | string | No | Heading shown above the image |
-| `caption` | string | No | Markdown caption shown below the image |
-| `fit` | string | No | How the image fills the widget: `contain` (default, whole image visible) or `cover` (fills the box, may crop) |
+| `src` | string | Yes | Name of the column holding the image URL (rendered per row). URLs must be reachable by the viewer's browser (http(s) URL, `data:` URI, or an app-served path). |
+| `title` | string | No | Column whose value is the heading shown above each image |
+| `caption` | string | No | Column whose value is the Markdown caption shown below each image |
+| `alt` | string | No | Column whose value is the alt text for accessibility |
+| `fit` | string | No | How each image fills its box: `contain` (default, whole image visible) or `cover` (fills the box, may crop) |
+
+The widget needs a query source (`sql`, `query`, or inline `data`), exactly like a table.
 
 ## Divider
 

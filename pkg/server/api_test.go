@@ -66,14 +66,13 @@ func TestResolveWidgetJobs_RegularSQLWidgets(t *testing.T) {
 	assertEqual(t, jobs[0].SQL, "SELECT * FROM orders")
 }
 
-func TestResolveWidgetJobs_SkipsTextDividerImage(t *testing.T) {
+func TestResolveWidgetJobs_SkipsTextDivider(t *testing.T) {
 	d := &dashboard.Dashboard{
 		Name: "test",
 		Rows: []dashboard.Row{{
 			Widgets: []dashboard.Widget{
 				{Name: "txt", Type: "text", Content: "hi"},
 				{Name: "div", Type: "divider"},
-				{Name: "img", Type: "image", Src: "x.png"},
 			},
 		}},
 	}
@@ -83,7 +82,27 @@ func TestResolveWidgetJobs_SkipsTextDividerImage(t *testing.T) {
 		t.Fatal(err)
 	}
 	if len(jobs) != 0 {
-		t.Fatalf("expected 0 jobs for text/divider/image, got %d", len(jobs))
+		t.Fatalf("expected 0 jobs for text/divider, got %d", len(jobs))
+	}
+}
+
+// A data-driven image widget now yields a data job like a table.
+func TestResolveWidgetJobs_ImageGetsJob(t *testing.T) {
+	d := &dashboard.Dashboard{
+		Name: "test",
+		Rows: []dashboard.Row{{
+			Widgets: []dashboard.Widget{
+				{Name: "img", Type: "image", Src: "photo", SQL: "SELECT photo FROM listings"},
+			},
+		}},
+	}
+
+	jobs, err := ResolveWidgetJobs(d, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(jobs) != 1 {
+		t.Fatalf("expected 1 job for a data-driven image widget, got %d", len(jobs))
 	}
 }
 

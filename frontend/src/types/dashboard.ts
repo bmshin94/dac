@@ -116,7 +116,7 @@ export interface Widget {
   // Text
   content?: string;
 
-  // Image
+  // Image (data-driven): src/title/caption/alt name the columns to read.
   src?: string;
   alt?: string;
   title?: string;

@@ -157,11 +157,13 @@ type Widget struct {
 	// Text fields
 	Content string `yaml:"content,omitempty" json:"content,omitempty"`
 
-	// Image fields
-	Src     string `yaml:"src,omitempty" json:"src,omitempty"`
-	Alt     string `yaml:"alt,omitempty" json:"alt,omitempty"`
-	Title   string `yaml:"title,omitempty" json:"title,omitempty"`     // heading shown above the image
-	Caption string `yaml:"caption,omitempty" json:"caption,omitempty"` // markdown caption shown below the image
+	// Image fields. The image widget is data-driven like a table: it runs a query
+	// and renders one image per row. Src/Alt/Title/Caption name the columns to
+	// read; Fit is a literal applied to every image.
+	Src     string `yaml:"src,omitempty" json:"src,omitempty"`         // column with the image URL
+	Alt     string `yaml:"alt,omitempty" json:"alt,omitempty"`         // column for alt text
+	Title   string `yaml:"title,omitempty" json:"title,omitempty"`     // column for the heading
+	Caption string `yaml:"caption,omitempty" json:"caption,omitempty"` // column for the markdown caption
 	Fit     string `yaml:"fit,omitempty" json:"fit,omitempty"`         // contain (default) | cover
 }
 
@@ -578,7 +580,7 @@ func (w *Widget) ResolvedQuery(dashboard *Dashboard) (sql, connection string, er
 		return w.SQL, conn, nil
 
 	default:
-		if w.Type == WidgetTypeText || w.Type == WidgetTypeDivider || w.Type == WidgetTypeImage {
+		if w.Type == WidgetTypeText || w.Type == WidgetTypeDivider {
 			return "", "", nil
 		}
 		return "", "", &NoQueryError{Widget: w.Name}

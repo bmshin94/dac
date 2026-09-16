@@ -87,7 +87,7 @@ func checkCmd() *cli.Command {
 						widgetID := server.WidgetID(rowIdx, widgetIdx)
 						widgetNames[widgetID] = w.Name
 
-						if w.Type == dashboard.WidgetTypeText || w.Type == dashboard.WidgetTypeDivider || w.Type == dashboard.WidgetTypeImage {
+						if w.Type == dashboard.WidgetTypeText || w.Type == dashboard.WidgetTypeDivider {
 							passiveWidgets = append(passiveWidgets, w.Name)
 							continue
 						}

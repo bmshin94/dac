@@ -34,7 +34,7 @@ const isStaticMode = window.__DAC_STATIC__ !== undefined;
 type DashboardExportFormat = "csv" | "png" | "pdf";
 
 // Non-data widget types that don't need a query.
-const STATIC_WIDGET_TYPES = new Set(["text", "divider", "image"]);
+const STATIC_WIDGET_TYPES = new Set(["text", "divider"]);
 
 // Persist sidebar state across navigation (module-level, resets on page refresh).
 let _yamlOpen = false;
@@ -57,7 +57,7 @@ function DataWidget({
   filters?: Record<string, unknown>;
   WidgetFrame: React.ComponentType<WidgetFrameProps>;
 }) {
-  // Static widgets (text, divider, image) don't need data.
+  // Static widgets (text, divider) don't need data.
   if (STATIC_WIDGET_TYPES.has(widget.type)) {
     return <WidgetFrame widget={widget} isLoading={false} />;
   }
@@ -221,7 +221,7 @@ export function DashboardView() {
         const sections: { name: string; data: WidgetData }[] = [];
         dashboard.rows.forEach((row, i) => {
           row.widgets.forEach((widget, j) => {
-            if (widget.type === "text" || widget.type === "divider" || widget.type === "image") return;
+            if (widget.type === "text" || widget.type === "divider") return;
             const data = widgetData[`r${i}-w${j}`];
             if (data && !data.error && data.rows && data.rows.length > 0) {
               sections.push({ name: widget.name, data });
