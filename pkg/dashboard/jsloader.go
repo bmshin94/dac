@@ -555,8 +555,11 @@ func vnodeToWidget(n *vnode) Widget {
 		Content: asString(n.Props["content"]),
 
 		// Image fields
-		Src: asString(n.Props["src"]),
-		Alt: asString(n.Props["alt"]),
+		Src:     asString(n.Props["src"]),
+		Alt:     asString(n.Props["alt"]),
+		Title:   asString(n.Props["title"]),
+		Caption: asString(n.Props["caption"]),
+		Fit:     asString(n.Props["fit"]),
 	}
 
 	return w

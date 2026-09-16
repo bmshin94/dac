@@ -158,8 +158,11 @@ type Widget struct {
 	Content string `yaml:"content,omitempty" json:"content,omitempty"`
 
 	// Image fields
-	Src string `yaml:"src,omitempty" json:"src,omitempty"`
-	Alt string `yaml:"alt,omitempty" json:"alt,omitempty"`
+	Src     string `yaml:"src,omitempty" json:"src,omitempty"`
+	Alt     string `yaml:"alt,omitempty" json:"alt,omitempty"`
+	Title   string `yaml:"title,omitempty" json:"title,omitempty"`     // heading shown above the image
+	Caption string `yaml:"caption,omitempty" json:"caption,omitempty"` // markdown caption shown below the image
+	Fit     string `yaml:"fit,omitempty" json:"fit,omitempty"`         // contain (default) | cover
 }
 
 // BoundEncoding is a CI bound (yMin/yMax): a single column name (scalar form) or a

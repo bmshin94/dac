@@ -1,4 +1,5 @@
 import { useContext } from "react";
+import Markdown from "react-markdown";
 import type { WidgetFrameProps } from "../../types/template";
 import { useTemplate } from "../TemplateProvider";
 import { RowHeightContext } from "../RowContext";
@@ -11,7 +12,7 @@ const containerClass: Record<string, string> = {
   table: "py-3 h-full border border-[var(--dac-border)] rounded overflow-hidden",
   text: "py-3 h-full",
   divider: "py-2 h-full flex items-center",
-  image: "py-3 h-full",
+  image: "py-3 px-4 h-full border border-[var(--dac-border)] rounded",
 };
 
 export function BruinWidgetFrame({ widget, data, isLoading }: WidgetFrameProps) {
@@ -28,20 +29,32 @@ export function BruinWidgetFrame({ widget, data, isLoading }: WidgetFrameProps) 
     );
   }
 
-  // Image: render an img tag with optional title.
+  // Image: name label, optional title, the image, and an optional markdown caption.
+  // A flex column keeps the image in the remaining space so a fixed-height row
+  // never overflows; the image is capped so an auto-height row stays reasonable.
   if (widget.type === "image") {
     return (
-      <div className={containerClass.image}>
+      <div className={`${containerClass.image} flex flex-col`}>
         {widget.name && (
           <div className="text-[11px] font-medium uppercase tracking-wider text-[var(--dac-text-muted)] mb-1.5">
             {widget.name}
           </div>
         )}
-        <img
-          src={widget.src}
-          alt={widget.alt ?? widget.name ?? ""}
-          className="max-w-full rounded"
-        />
+        {widget.title && (
+          <div className="text-[15px] font-semibold text-[var(--dac-text-primary)] mb-2">{widget.title}</div>
+        )}
+        <div className="flex-1 min-h-0 flex items-center justify-center overflow-hidden">
+          <img
+            src={widget.src}
+            alt={widget.alt ?? widget.name ?? ""}
+            className={`rounded max-h-[320px] ${widget.fit === "cover" ? "w-full h-full object-cover" : "max-w-full object-contain"}`}
+          />
+        </div>
+        {widget.caption && (
+          <div className="dac-prose text-[13px] text-[var(--dac-text-secondary)] mt-2">
+            <Markdown>{widget.caption}</Markdown>
+          </div>
+        )}
       </div>
     );
   }

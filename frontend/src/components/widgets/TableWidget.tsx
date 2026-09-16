@@ -20,6 +20,7 @@ interface SortState {
 interface TableColumn {
   name: string;
   label: string;
+  type?: "text" | "image"; // cell rendering: image renders the value as a thumbnail
   number?: string; // value display (currency | number | d3-format)
   align?: "left" | "center" | "right"; // text-alignment override (header + body)
   border?: "left" | "right" | "both"; // non-colour vertical group border on this edge
@@ -65,6 +66,7 @@ export function TableWidget({ widget, data }: Props) {
             return {
               name: col.name,
               label: m?.label || col.name,
+              type: m?.type,
               number: m?.number,
               align: m?.align,
               border: m?.border,
@@ -78,6 +80,7 @@ export function TableWidget({ widget, data }: Props) {
         : widget.columns.map((col) => ({
             name: col.name,
             label: col.label || col.name,
+            type: col.type,
             number: col.number,
             align: col.align,
             border: col.border,
@@ -391,7 +394,17 @@ export function TableWidget({ widget, data }: Props) {
                     } ${totalRow || colIsTotal(col.idx) ? "font-bold" : ""} ${frozenBgClass(ci)} ${borderClasses[ci]}`}
                     style={tdStyle}
                   >
-                    {formatCell(raw, col.number, numberFormatters.get(col.name))}
+                    {col.type === "image" && !pivot && raw ? (
+                      <img
+                        src={String(raw)}
+                        alt=""
+                        loading="lazy"
+                        referrerPolicy="no-referrer"
+                        className="h-10 w-auto max-w-[120px] rounded object-cover"
+                      />
+                    ) : (
+                      formatCell(raw, col.number, numberFormatters.get(col.name))
+                    )}
                   </td>
                 );
               })}

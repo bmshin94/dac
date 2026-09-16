@@ -402,6 +402,15 @@
         },
         "alt": {
           "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "caption": {
+          "type": "string"
+        },
+        "fit": {
+          "enum": ["contain", "cover"]
         }
       },
       "patternProperties": {

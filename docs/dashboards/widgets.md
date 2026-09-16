@@ -667,22 +667,29 @@ Supported markdown:
 
 ## Image
 
-Image widgets render an image from a URL.
+Image widgets render an image from a URL, with an optional title and Markdown caption.
 
 ```yaml
-- name: Logo
+- name: Featured Property
   type: image
-  col: 3
-  src: https://example.com/logo.png
-  alt: Company Logo
+  col: 4
+  src: https://example.com/listings/123.jpg
+  alt: Riverside Loft exterior
+  title: Riverside Loft
+  caption: |
+    **€845,000** · 3 bed · 128 m²
+  fit: cover
 ```
 
 Image-specific fields:
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `src` | string | Yes | Image URL |
+| `src` | string | Yes | Image URL. Must be reachable by the viewer's browser (http(s) URL, `data:` URI, or an app-served path); local file paths do not work. |
 | `alt` | string | No | Alt text for accessibility |
+| `title` | string | No | Heading shown above the image |
+| `caption` | string | No | Markdown caption shown below the image |
+| `fit` | string | No | How the image fills the widget: `contain` (default, whole image visible) or `cover` (fills the box, may crop) |
 
 ## Divider
 

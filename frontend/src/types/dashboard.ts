@@ -119,6 +119,9 @@ export interface Widget {
   // Image
   src?: string;
   alt?: string;
+  title?: string;
+  caption?: string;
+  fit?: "contain" | "cover";
 }
 
 export interface RefLine {
@@ -139,6 +142,8 @@ export interface RefBand {
 export interface TableColumn {
   name: string;
   label?: string;
+  /** Cell rendering: `image` renders each value as a thumbnail from its URL (default text). */
+  type?: 'text' | 'image';
   /** Value display: `currency`, `number`, or a d3-format spec. */
   number?: string;
   /** Mirror another column's coloring, driven by that column's per-row value. */

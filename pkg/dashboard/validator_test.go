@@ -511,6 +511,26 @@ func TestValidate_TableColumnFrozen(t *testing.T) {
 	assertValidationContains(t, Validate(pivot), "frozen: not supported on pivot tables")
 }
 
+func TestValidate_ImageWidget(t *testing.T) {
+	// A valid image widget with an optional fit.
+	ok := &Dashboard{Name: "test", Rows: []Row{{Widgets: []Widget{{
+		Name: "w", Type: WidgetTypeImage, Src: "https://example.com/a.jpg", Fit: "cover",
+	}}}}}
+	assertNoErr(t, Validate(ok))
+
+	// src is required.
+	noSrc := &Dashboard{Name: "test", Rows: []Row{{Widgets: []Widget{{
+		Name: "w", Type: WidgetTypeImage,
+	}}}}}
+	assertValidationContains(t, Validate(noSrc), "src is required for image widgets")
+
+	// fit must be contain or cover.
+	badFit := &Dashboard{Name: "test", Rows: []Row{{Widgets: []Widget{{
+		Name: "w", Type: WidgetTypeImage, Src: "https://example.com/a.jpg", Fit: "stretch",
+	}}}}}
+	assertValidationContains(t, Validate(badFit), "fit must be contain or cover")
+}
+
 func TestValidate_TableColumnType(t *testing.T) {
 	// type: image is accepted on plain tables.
 	tbl := &Dashboard{Name: "test", Rows: []Row{{Widgets: []Widget{{

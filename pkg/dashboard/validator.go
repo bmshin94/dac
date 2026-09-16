@@ -90,6 +90,9 @@ func Validate(d *Dashboard) error {
 				if w.Src == "" {
 					errs = append(errs, fmt.Sprintf("%s: src is required for image widgets", prefix))
 				}
+				if w.Fit != "" && w.Fit != "contain" && w.Fit != "cover" {
+					errs = append(errs, fmt.Sprintf("%s: fit must be contain or cover", prefix))
+				}
 			case "":
 				// Already reported above.
 			default:
