@@ -368,6 +368,7 @@ Table column fields:
 |-------|------|-------------|
 | `name` | string | Result column name (must match the SQL output) |
 | `label` | string | Display header (defaults to `name`) |
+| `type` | string | Cell rendering: `text` (default) or `image`. `image` treats each cell value as an image URL and renders it as a thumbnail (plain tables only; not `pivot_table`). |
 | `align` | string | Text alignment override: `left`, `center`, or `right`. Applies to the column header and its body cells. Use it to right-align a text value like `£177K` that isn't detected as numeric. |
 | `border` | string | Non-colour vertical border on this column's `left`, `right`, or `both` edge, to separate column groups (plain tables only; not `pivot_table`). |
 | `hidden` | boolean | Keep the column in the result but don't render it, see [Hidden columns](#hidden-columns) |
@@ -666,22 +667,32 @@ Supported markdown:
 
 ## Image
 
-Image widgets render an image from a URL.
+Image widgets are data-driven like a table: the widget runs a query and renders one
+image per result row (scrolling horizontally when there are several). `src`/`title`/
+`caption`/`alt` name the columns to read; `fit` is a literal applied to every image.
 
 ```yaml
-- name: Logo
+- name: Property Gallery
   type: image
-  col: 3
-  src: https://example.com/logo.png
-  alt: Company Logo
+  col: 12
+  fit: cover
+  sql: SELECT photo_url, address, price FROM listings   # or an inline data: block
+  src: photo_url     # column with the image URL (required)
+  title: address     # column for the heading
+  caption: price     # column for the markdown caption
 ```
 
 Image-specific fields:
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `src` | string | Yes | Image URL |
-| `alt` | string | No | Alt text for accessibility |
+| `src` | string | Yes | Name of the column holding the image URL (rendered per row). URLs must be reachable by the viewer's browser (http(s) URL, `data:` URI, or an app-served path). |
+| `title` | string | No | Column whose value is the heading shown above each image |
+| `caption` | string | No | Column whose value is the Markdown caption shown below each image |
+| `alt` | string | No | Column whose value is the alt text for accessibility |
+| `fit` | string | No | How each image fills its box: `contain` (default, whole image visible) or `cover` (fills the box, may crop) |
+
+The widget needs a query source (`sql`, `query`, or inline `data`), exactly like a table.
 
 ## Divider
 

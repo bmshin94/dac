@@ -258,7 +258,7 @@ func ResolveWidgetJobs(d *dashboard.Dashboard, filters map[string]any) ([]Widget
 	var jobs []WidgetJob
 	for i, row := range d.Rows {
 		for j, widget := range row.Widgets {
-			if widget.Type == dashboard.WidgetTypeText || widget.Type == dashboard.WidgetTypeDivider || widget.Type == dashboard.WidgetTypeImage {
+			if widget.Type == dashboard.WidgetTypeText || widget.Type == dashboard.WidgetTypeDivider {
 				continue
 			}
 

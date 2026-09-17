@@ -402,6 +402,15 @@
         },
         "alt": {
           "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "caption": {
+          "type": "string"
+        },
+        "fit": {
+          "enum": ["contain", "cover"]
         }
       },
       "patternProperties": {
@@ -414,7 +423,14 @@
             "required": ["type"],
             "properties": { "type": { "const": "pivot_table" } }
           },
-          "then": { "required": ["pivot"] },
+          "then": {
+            "required": ["pivot"],
+            "properties": {
+              "columns": {
+                "items": { "properties": { "type": { "const": "text" } } }
+              }
+            }
+          },
           "else": { "not": { "required": ["pivot"] } }
         }
       ]
@@ -490,6 +506,10 @@
         },
         "label": {
           "type": "string"
+        },
+        "type": {
+          "enum": ["text", "image"],
+          "description": "How to render the column's cell values. `text` (default) shows the value; `image` treats each value as an image URL and renders it as a thumbnail (plain tables only)."
         },
         "number": {
           "type": "string"

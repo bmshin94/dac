@@ -157,9 +157,14 @@ type Widget struct {
 	// Text fields
 	Content string `yaml:"content,omitempty" json:"content,omitempty"`
 
-	// Image fields
-	Src string `yaml:"src,omitempty" json:"src,omitempty"`
-	Alt string `yaml:"alt,omitempty" json:"alt,omitempty"`
+	// Image fields. The image widget is data-driven like a table: it runs a query
+	// and renders one image per row. Src/Alt/Title/Caption name the columns to
+	// read; Fit is a literal applied to every image.
+	Src     string `yaml:"src,omitempty" json:"src,omitempty"`         // column with the image URL
+	Alt     string `yaml:"alt,omitempty" json:"alt,omitempty"`         // column for alt text
+	Title   string `yaml:"title,omitempty" json:"title,omitempty"`     // column for the heading
+	Caption string `yaml:"caption,omitempty" json:"caption,omitempty"` // column for the markdown caption
+	Fit     string `yaml:"fit,omitempty" json:"fit,omitempty"`         // contain (default) | cover
 }
 
 // BoundEncoding is a CI bound (yMin/yMax): a single column name (scalar form) or a
@@ -223,6 +228,7 @@ type RefBand struct {
 type TableColumn struct {
 	Name   string        `yaml:"name" json:"name"`
 	Label  string        `yaml:"label,omitempty" json:"label,omitempty"`
+	Type   string        `yaml:"type,omitempty" json:"type,omitempty"`     // cell rendering: text (default) | image (value is an image URL, rendered as a thumbnail)
 	Number string        `yaml:"number,omitempty" json:"number,omitempty"` // value display: currency | number | d3-format spec
 	Like   string        `yaml:"like,omitempty" json:"like,omitempty"`     // mirror another column's coloring + per-row value
 	Hidden bool          `yaml:"hidden,omitempty" json:"hidden,omitempty"` // keep the column in the result (for cross-column rules / like) but don't render it
@@ -267,6 +273,7 @@ func (c *TableColumn) UnmarshalYAML(node *yaml.Node) error {
 	var tmp struct {
 		Name   string    `yaml:"name"`
 		Label  string    `yaml:"label,omitempty"`
+		Type   string    `yaml:"type,omitempty"`
 		Number string    `yaml:"number,omitempty"`
 		Like   string    `yaml:"like,omitempty"`
 		Hidden bool      `yaml:"hidden,omitempty"`
@@ -278,7 +285,7 @@ func (c *TableColumn) UnmarshalYAML(node *yaml.Node) error {
 	if err := node.Decode(&tmp); err != nil {
 		return err
 	}
-	*c = TableColumn{Name: tmp.Name, Label: tmp.Label, Number: tmp.Number, Like: tmp.Like, Hidden: tmp.Hidden, Align: tmp.Align, Border: tmp.Border, Frozen: tmp.Frozen}
+	*c = TableColumn{Name: tmp.Name, Label: tmp.Label, Type: tmp.Type, Number: tmp.Number, Like: tmp.Like, Hidden: tmp.Hidden, Align: tmp.Align, Border: tmp.Border, Frozen: tmp.Frozen}
 
 	// Follow a YAML alias to its target, then: a scalar is the legacy value-display
 	// shorthand (folds into `number`); a list is the style layers.
@@ -573,7 +580,7 @@ func (w *Widget) ResolvedQuery(dashboard *Dashboard) (sql, connection string, er
 		return w.SQL, conn, nil
 
 	default:
-		if w.Type == WidgetTypeText || w.Type == WidgetTypeDivider || w.Type == WidgetTypeImage {
+		if w.Type == WidgetTypeText || w.Type == WidgetTypeDivider {
 			return "", "", nil
 		}
 		return "", "", &NoQueryError{Widget: w.Name}

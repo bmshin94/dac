@@ -511,6 +511,66 @@ func TestValidate_TableColumnFrozen(t *testing.T) {
 	assertValidationContains(t, Validate(pivot), "frozen: not supported on pivot tables")
 }
 
+func TestValidate_ImageWidget(t *testing.T) {
+	// Data-driven: a query source plus src naming the image URL column.
+	ok := &Dashboard{Name: "test", Rows: []Row{{Widgets: []Widget{{
+		Name: "w", Type: WidgetTypeImage, SQL: "SELECT photo, address FROM listings", Src: "photo", Title: "address", Fit: "cover",
+	}}}}}
+	assertNoErr(t, Validate(ok))
+
+	// src (the image URL column) is required.
+	noSrc := &Dashboard{Name: "test", Rows: []Row{{Widgets: []Widget{{
+		Name: "w", Type: WidgetTypeImage, SQL: "SELECT photo FROM listings",
+	}}}}}
+	assertValidationContains(t, Validate(noSrc), "src (image URL column) is required for image widgets")
+
+	// No query source → error (data-driven, like a table).
+	noSource := &Dashboard{Name: "test", Rows: []Row{{Widgets: []Widget{{
+		Name: "w", Type: WidgetTypeImage, Src: "photo",
+	}}}}}
+	if Validate(noSource) == nil {
+		t.Fatal("expected an error for an image widget without a query source")
+	}
+
+	// fit must be contain or cover.
+	badFit := &Dashboard{Name: "test", Rows: []Row{{Widgets: []Widget{{
+		Name: "w", Type: WidgetTypeImage, SQL: "SELECT photo FROM listings", Src: "photo", Fit: "stretch",
+	}}}}}
+	assertValidationContains(t, Validate(badFit), "fit must be contain or cover")
+}
+
+func TestValidate_TableColumnType(t *testing.T) {
+	// type: image is accepted on plain tables.
+	tbl := &Dashboard{Name: "test", Rows: []Row{{Widgets: []Widget{{
+		Name: "w", Type: WidgetTypeTable, SQL: "SELECT photo FROM listings",
+		Columns: []TableColumn{{Name: "photo", Type: "image"}},
+	}}}}}
+	assertNoErr(t, Validate(tbl))
+
+	// an unknown type is rejected.
+	bad := &Dashboard{Name: "test", Rows: []Row{{Widgets: []Widget{{
+		Name: "w", Type: WidgetTypeTable, SQL: "SELECT photo FROM listings",
+		Columns: []TableColumn{{Name: "photo", Type: "video"}},
+	}}}}}
+	assertValidationContains(t, Validate(bad), "type: must be text or image")
+
+	// type: image is table-only — rejected on pivot_table widgets.
+	pivot := &Dashboard{Name: "test", Rows: []Row{{Widgets: []Widget{{
+		Name: "w", Type: WidgetTypePivotTable, SQL: "SELECT region, photo FROM listings",
+		Pivot:   &PivotConfig{Rows: []PivotField{{Field: "region"}}, Values: []PivotValue{{Field: "photo"}}},
+		Columns: []TableColumn{{Name: "photo", Type: "image"}},
+	}}}}}
+	assertValidationContains(t, Validate(pivot), "type: image not supported on pivot tables")
+
+	// type: text is the default rendering and stays valid on pivot tables.
+	pivotText := &Dashboard{Name: "test", Rows: []Row{{Widgets: []Widget{{
+		Name: "w", Type: WidgetTypePivotTable, SQL: "SELECT region, sales FROM orders",
+		Pivot:   &PivotConfig{Rows: []PivotField{{Field: "region"}}, Values: []PivotValue{{Field: "sales"}}},
+		Columns: []TableColumn{{Name: "sales", Type: "text"}},
+	}}}}}
+	assertNoErr(t, Validate(pivotText))
+}
+
 func TestValidate_PivotOnlyOnTables(t *testing.T) {
 	d := &Dashboard{
 		Name: "test",
@@ -823,7 +883,7 @@ func TestValidate_InlineDataInvalidOnText(t *testing.T) {
 	}
 	err := Validate(d)
 	assertErr(t, err)
-	assertValidationContains(t, err, "data is only valid on metric, chart, table, or pivot_table widgets")
+	assertValidationContains(t, err, "data is only valid on metric, chart, table, pivot_table, or image widgets")
 }
 
 func TestValidate_InlineDataEmptyColumns(t *testing.T) {

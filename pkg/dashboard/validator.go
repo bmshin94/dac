@@ -87,8 +87,14 @@ func Validate(d *Dashboard) error {
 			case WidgetTypeDivider:
 				// No required fields.
 			case WidgetTypeImage:
+				// Data-driven like a table: needs a query source, and src names the
+				// column holding the image URL.
+				errs = append(errs, validateQuerySource(prefix, &w, d)...)
 				if w.Src == "" {
-					errs = append(errs, fmt.Sprintf("%s: src is required for image widgets", prefix))
+					errs = append(errs, fmt.Sprintf("%s: src (image URL column) is required for image widgets", prefix))
+				}
+				if w.Fit != "" && w.Fit != "contain" && w.Fit != "cover" {
+					errs = append(errs, fmt.Sprintf("%s: fit must be contain or cover", prefix))
 				}
 			case "":
 				// Already reported above.
@@ -195,9 +201,9 @@ func validateInlineData(prefix string, w *Widget) []string {
 	var errs []string
 
 	switch w.Type {
-	case WidgetTypeMetric, WidgetTypeChart, WidgetTypeTable, WidgetTypePivotTable:
+	case WidgetTypeMetric, WidgetTypeChart, WidgetTypeTable, WidgetTypePivotTable, WidgetTypeImage:
 	default:
-		return append(errs, fmt.Sprintf("%s: data is only valid on metric, chart, table, or pivot_table widgets", prefix))
+		return append(errs, fmt.Sprintf("%s: data is only valid on metric, chart, table, pivot_table, or image widgets", prefix))
 	}
 
 	if w.SQL != "" || w.QueryRef != "" || w.IsSemantic() {
@@ -780,6 +786,13 @@ func validateTableColumns(prefix string, w *Widget, errs *[]string) {
 		}
 		if c.Frozen && w.Type == WidgetTypePivotTable {
 			*errs = append(*errs, cp+".frozen: not supported on pivot tables")
+		}
+		if c.Type != "" {
+			if c.Type != "text" && c.Type != "image" {
+				*errs = append(*errs, fmt.Sprintf("%s.type: must be text or image", cp))
+			} else if c.Type == "image" && w.Type == WidgetTypePivotTable {
+				*errs = append(*errs, cp+".type: image not supported on pivot tables")
+			}
 		}
 		for i, layer := range c.Format {
 			validateFormatLayer(fmt.Sprintf("%s.format[%d]", cp, i), layer, false, errs)

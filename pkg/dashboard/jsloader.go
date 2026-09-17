@@ -555,8 +555,11 @@ func vnodeToWidget(n *vnode) Widget {
 		Content: asString(n.Props["content"]),
 
 		// Image fields
-		Src: asString(n.Props["src"]),
-		Alt: asString(n.Props["alt"]),
+		Src:     asString(n.Props["src"]),
+		Alt:     asString(n.Props["alt"]),
+		Title:   asString(n.Props["title"]),
+		Caption: asString(n.Props["caption"]),
+		Fit:     asString(n.Props["fit"]),
 	}
 
 	return w
@@ -998,6 +1001,7 @@ func asTableColumns(v interface{}) []TableColumn {
 			col := TableColumn{
 				Name:   asString(m["name"]),
 				Label:  asString(m["label"]),
+				Type:   asString(m["type"]),
 				Number: asString(m["number"]),
 				Align:  asString(m["align"]),
 				Border: asString(m["border"]),
